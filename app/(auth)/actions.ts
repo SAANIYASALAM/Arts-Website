@@ -15,7 +15,7 @@ export async function login(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword(data)
 
   if (error) {
-    return { error: error.message }
+    redirect('/login?error=' + encodeURIComponent(error.message))
   }
 
   // Get user role to redirect appropriately
@@ -37,7 +37,7 @@ export async function login(formData: FormData) {
     }
   }
 
-  return { error: 'Login failed' }
+  redirect('/login?error=Login failed')
 }
 
 export async function signup(formData: FormData) {
@@ -51,7 +51,7 @@ export async function signup(formData: FormData) {
   const { error } = await supabase.auth.signUp(data)
 
   if (error) {
-    return { error: error.message }
+    redirect('/login?error=' + encodeURIComponent(error.message))
   }
 
   revalidatePath('/', 'layout')

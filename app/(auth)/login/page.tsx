@@ -1,30 +1,26 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { login } from "../actions";
+import { useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
-  const [error, setError] = useState<string>("");
+function LoginForm() {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const searchParams = useSearchParams();
+  const error = searchParams.get('error');
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
-    setError("");
 
     const formData = new FormData(event.currentTarget);
-    const result = await login(formData);
-
-    if (result?.error) {
-      setError(result.error);
-      setLoading(false);
-    }
+    await login(formData);
+    // If we reach here, login failed (otherwise redirect would happen)
+    setLoading(false);
   }
 
   return (
@@ -71,5 +67,17 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div>Loading...</div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }
